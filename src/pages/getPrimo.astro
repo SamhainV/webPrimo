@@ -1,0 +1,30 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Resultados">
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const params = new URLSearchParams(window.location.search);
+        const numero = params.get("numero");
+
+        // Si no hay número en la URL, redirige a la página principal
+        if (!numero) {
+          window.location.href = "/index"; // Ajusta la ruta si es necesario
+          return;
+        }
+
+        // Mostrar el número en la página
+        const resultadoElemento = document.getElementById("resultado");
+        if (resultadoElemento) {
+          resultadoElemento.textContent = `Número ingresado: ${numero}`;
+        }
+      });
+    </script>
+  
+    <div class="p-6 text-center">
+      <h1 class="text-2xl font-bold text-gray-800">Resultado</h1>
+      <p id="resultado" class="text-lg text-gray-600 mt-4">Cargando...</p>
+    </div>
+
+</Layout>
