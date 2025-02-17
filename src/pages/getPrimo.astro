@@ -1,41 +1,87 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import Elemento from "../components/Elemento.astro";
-
-// Obtener el número de la URL
-const url = new URL(import.meta.url);
-const numero = Number(url.searchParams.get("numero")) || 10;
-
-// Generar números primos
-let primes: number[] = [];
-for (let num = 2; num <= numero; num++) {
-  let isPrime = true;
-  for (let i = 2; i * i <= num; i++) {
-    if (num % i === 0) {
-      isPrime = false;
-      break;
-    }
-  }
-  if (isPrime) primes.push(num);
-}
-
-// Generar colores únicos para cada número
-const colors = primes.map((_, index) => `hsl(${(index * 40) % 360}, 70%, 60%)`);
 ---
 
 <Layout title="Resultados">
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const params = new URLSearchParams(window.location.search);
+      const numeroParam = params.get("numero");
+
+      // Validación del número
+      const numero = numeroParam ? parseInt(numeroParam, 10) : NaN;
+
+      if (isNaN(numero) || numero < 2) {
+        window.location.href = "/";
+        return;
+      }
+
+      // Generar números primos
+      let primes: number[] = [];
+      for (let num = 2; num <= numero; num++) {
+        let isPrime = true;
+        for (let i = 2; i * i <= num; i++) {
+          if (num % i === 0) {
+            isPrime = false;
+            break;
+          }
+        }
+        if (isPrime) primes.push(num);
+      }
+
+      const listElement = document.getElementById("primos-lista");
+      const buttonElement = document.getElementById("invert-order-btn");
+      let isReversed = false;
+
+      function renderPrimes() {
+        if (!listElement) return;
+
+        // Si está en orden original, usa el array normal. Si está invertido, se invierte toda la lista.
+        const displayPrimes = isReversed ? primes.slice().reverse() : primes.slice();
+
+        listElement.innerHTML = displayPrimes
+          .map((prime, index) => {
+            // Generar un color único basado en el índice de la lista original
+            const hue = (index * 40) % 360;
+            const color = `hsl(${hue}, 70%, 60%)`;
+
+            return `<div 
+              class="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 flex items-center justify-center text-white font-bold text-lg shadow-md rounded-md"
+              style="background-color: ${color};">
+                ${prime}
+              </div>`;
+          })
+          .join("");
+      }
+
+      // Evento para invertir el orden de toda la lista
+      if (buttonElement) {
+        buttonElement.addEventListener("click", () => {
+          isReversed = !isReversed;
+          renderPrimes();
+        });
+      }
+
+      // Renderizar la lista al cargar la página
+      renderPrimes();
+    });
+  </script>
+
   <div class="p-6 text-center">
     <h1 class="text-2xl font-bold text-gray-800">Números Primos</h1>
     <p class="text-lg text-gray-600 mt-4">
       Lista de primos hasta el número indicado:
     </p>
 
+    <!-- BOTÓN PARA INVERTIR EL ORDEN -->
+    <button id="invert-order-btn" class="mt-4 px-4 py-2 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-600 transition">
+      Invertir Orden
+    </button>
+
     <!-- CENTRADO Y RESPONSIVE GRID -->
     <div class="flex justify-center mt-4">
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
-        {primes.map((num, index) => (
-          <Elemento numero={num} color={colors[index]} />
-        ))}
+      <div id="primos-lista" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+        <!-- Aquí se insertarán los números primos -->
       </div>
     </div>
   </div>
